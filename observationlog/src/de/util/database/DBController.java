@@ -63,9 +63,9 @@ public class DBController {
             while (rs.next()) {
                 System.out.println("Beobachtungsort = " + rs.getString("loc_name"));
                 System.out.println("Objekt = " + rs.getString("obs_object"));
-                System.out.println("Rektaszension = " + rs.getDate("obs_ra"));
-                System.out.println("Deklination = " + rs.getInt("obs_dec"));
-                System.out.println("Sternbild = " + rs.getDouble("con_abbrevation"));
+                System.out.println("Rektaszension = " + rs.getDouble("obs_ra"));
+                System.out.println("Deklination = " + rs.getDouble("obs_dec"));
+                System.out.println("Sternbild = " + rs.getString("con_abbrevation"));
             }
             rs.close();
             connection.close();
