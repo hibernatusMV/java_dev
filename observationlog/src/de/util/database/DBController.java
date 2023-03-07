@@ -6,7 +6,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement; 
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
 
 public class DBController {
     private static final DBController dbcontroller = new DBController();
@@ -60,12 +61,17 @@ public class DBController {
         try { 
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM observations;");
+
+            String pattern = "dd. MMMMM yyyy HH:mm";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
             while (rs.next()) {
                 System.out.println("Beobachtungsort = " + rs.getString("loc_name"));
                 System.out.println("Objekt = " + rs.getString("obs_object"));
                 System.out.println("Rektaszension = " + rs.getDouble("obs_ra"));
                 System.out.println("Deklination = " + rs.getDouble("obs_dec"));
                 System.out.println("Sternbild = " + rs.getString("con_abbrevation"));
+                System.out.println("Beobachter = " + rs.getString("obs_observer"));
+                System.out.println("Datum = " + simpleDateFormat.format(rs.getDate("obs_datetime")));
             }
             rs.close();
             connection.close();
