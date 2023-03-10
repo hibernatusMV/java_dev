@@ -1,12 +1,13 @@
 package de.util.database;
 
 import java.sql.Connection;
-import java.sql.Date;
+//import java.sql.Date;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+//import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSetMetaData;
 import java.text.SimpleDateFormat;
 
 public class DBController {
@@ -57,21 +58,16 @@ public class DBController {
         });
     } 
 
-    private void handleDB() {
+    private void handleDB(String statement) {
         try { 
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM observations;");
-
-            String pattern = "dd. MMMMM yyyy HH:mm";
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+            ResultSet rs = stmt.executeQuery(statement);
+            ResultSetMetaData rsmd = rs.getMetaData();
+            
             while (rs.next()) {
-                System.out.println("Beobachtungsort = " + rs.getString("loc_name"));
-                System.out.println("Objekt = " + rs.getString("obs_object"));
-                System.out.println("Rektaszension = " + rs.getDouble("obs_ra"));
-                System.out.println("Deklination = " + rs.getDouble("obs_dec"));
-                System.out.println("Sternbild = " + rs.getString("con_abbrevation"));
-                System.out.println("Beobachter = " + rs.getString("obs_observer"));
-                System.out.println("Datum = " + simpleDateFormat.format(rs.getDate("obs_datetime")));
+                for (int i=1; i<=rsmd.getColumnCount();i++) {
+                    System.out.println(getData(rs, rsmd, i));
+                }
             }
             rs.close();
             connection.close();
@@ -81,10 +77,45 @@ public class DBController {
         } 
     }
 
-    public DBController dbConnection() {
+    private String getData(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
+        String data = "";
+        String dataType = "";
+
+        String pattern = "dd. MMMMM yyyy HH:mm";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+               
+        dataType = rsmd.getColumnTypeName(i);
+
+        switch(dataType) {
+            case "INT":
+                data = String.valueOf(rs.getInt(i));
+                break;
+            case "VARCHAR":
+                data = rs.getString(i);
+                break;
+            case "DECIMAL":
+                data = String.valueOf(rs.getDouble(i));
+                break;
+            case "DATETIME":
+                data = simpleDateFormat.format(rs.getDate(i));
+                break;
+            case "TEXT":
+                data = rs.getString(i);
+                break;
+            case "BLOB":
+                data = "BLOB";
+                break;
+            default:
+                data = "";
+        }
+        
+        return data;
+    }
+
+    public DBController dbGetData(String selectStmt) {
         DBController dbc = DBController.getInstance();
         dbc.initDBConnection();
-        dbc.handleDB();
+        dbc.handleDB(selectStmt);
         return dbc;
     }
 }
