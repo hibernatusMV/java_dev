@@ -77,6 +77,16 @@ public class DBController {
         } 
     }
 
+    /**
+     * Returns value for specified column and datatype
+     * Method gets the actual datatype for the indexed column
+     * and gets the value for the indexed column with the matching get method 
+     * @param rs                The resultset for the given SQL statement
+     * @param rsmd              The resultset meta data
+     * @param i                 Index for the active column for the data row
+     * @return                  returned data as string
+     * @throws SQLException
+     */
     private String getData(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
         String data = "";
         String dataType = "";
