@@ -9,6 +9,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSetMetaData;
 import java.text.SimpleDateFormat;
+import de.util.helper.*;
+
+final class Value
+{
+    public String name;
+    public String value;
+     
+    public Value(String name, String value)
+    {
+        this.name = name;
+        this.value = value;
+    }
+}
 
 public class DBController {
     private static final DBController dbcontroller = new DBController();
@@ -63,10 +76,22 @@ public class DBController {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(statement);
             ResultSetMetaData rsmd = rs.getMetaData();
+            math mth = new math();
             
             while (rs.next()) {
                 for (int i=1; i<=rsmd.getColumnCount();i++) {
-                    System.out.println(getData(rs, rsmd, i));
+                    Value value = getData(rs, rsmd, i);
+
+                    switch(value.name){
+                        case "obs_ra":
+                            System.out.println(value.name + ": " + mth.deg2RA(Double.parseDouble(value.value)));
+                            break;
+                        case "obs_dec":
+                            System.out.println(value.name + ": " + mth.deg2dms(Double.parseDouble(value.value)));
+                            break;
+                        default:
+                            System.out.println(value.name + ": " + value.value);
+                    }
                 }
             }
             rs.close();
@@ -87,14 +112,16 @@ public class DBController {
      * @return                  returned data as string
      * @throws SQLException
      */
-    private String getData(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
+    private Value getData(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
         String data = "";
         String dataType = "";
+        String colName = "";
 
         String pattern = "dd. MMMMM yyyy HH:mm";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
                
         dataType = rsmd.getColumnTypeName(i);
+        colName = rsmd.getColumnName(i);
 
         switch(dataType) {
             case "INT":
@@ -119,7 +146,7 @@ public class DBController {
                 data = "";
         }
         
-        return data;
+        return new Value(colName, data);
     }
 
     public DBController dbGetData(String selectStmt) {
